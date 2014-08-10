@@ -1,12 +1,42 @@
 # Reproducible Research: Peer Assessment 1
-
+This paper will look into a sample collected over a two-month period, October
+and November 2012. The data consists of 5 minutes intervals counting the steps
+the subject took.   
+We will process the data, looking at what the mean and the median number of 
+steps pr. day is, along with imputing missing data in order to enhance the 
+precision of the dataset. Lastly, we will look at how the number of steps
+differ from weekend to weekdays.
 
 ## Loading and preprocessing the data
+As the data comes in a .zip format, we will unzip the data, load it, read it
+and delete the unzipped folder.
+For this to work the working directory must be set to the 
+*RepData_PeerAssessment1* folder.
 
-
+```{r, unzip}
+permwd <- getwd() ## As we change the wd, we keep the original
+temp <- tempfile()
+unzip("activity.zip", exdir=temp)
+setwd(temp) 
+df <- read.csv(file="activity.csv")
+unlink(temp, recursive=TRUE) ## Deletes the temp file
+setwd(permwd)
+```
 
 ## What is mean total number of steps taken per day?
+Now that we have loaded the data, we want to look at the mean steps taken pr.
+day. For this we will use the tapply function to sum the days and the baseplot
+to construct a histogram.
 
+```{r}
+
+stepsum <- as.numeric(tapply(df$step, df$date, sum, na.rm=TRUE))
+hist(stepsum, breaks=20, main = "Number of steps pr. day", xlab="Steps", ylab="Count", col="green")
+meanstep <- round(mean(stepsum), 2)
+medianstep <- median(stepsum)
+```
+
+We can see that the mean is `r meanstep` and the median is `r medianstep`. 
 
 
 ## What is the average daily activity pattern?
