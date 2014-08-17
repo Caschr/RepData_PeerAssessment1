@@ -12,15 +12,21 @@ differ from weekend to weekdays.
 
 We start off by setting some global options.
 
-```{r Global options}
+
+```r
 library(ggplot2)
+```
+
+```
+## Need help? Try the ggplot2 mailing list: http://groups.google.com/group/ggplot2.
+```
+
+```r
 library(scales) ## For the scale_x_datetime
 library(knitr)
 
 opts_chunk$set(fig.width=9, fig.height=4)
 options(scipen=6) ## Ensures that scientific notation isn't to lenient. 
-
-
 ```
 
 
@@ -30,7 +36,8 @@ and delete the unzipped folder.
 For this to work the working directory must be set to the 
 *RepData_PeerAssessment1* folder.
 
-```{r, unzip}
+
+```r
 permwd <- getwd() ## As we change the wd, we keep the original
 temp <- tempfile()
 unzip("activity.zip", exdir=temp)
@@ -69,24 +76,29 @@ Now that we have loaded the data, we want to look at the mean steps taken pr.
 day. For this we will use the tapply function to sum the days and the baseplot
 to construct a histogram.
 
-```{r}
 
+```r
 stepsum <- as.numeric(tapply(df$step, df$date, sum, na.rm=TRUE))
 hist(stepsum, breaks=20, main = "Number of steps pr. day", xlab="Steps", 
      ylab="Count", col="green")
-meanstep <- round(mean(stepsum), 2)
-medianstep <- median(stepsum)
-
 ```
 
-We can see that the mean is `r meanstep` and the median is `r medianstep`. 
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1.png) 
+
+```r
+meanstep <- round(mean(stepsum), 2)
+medianstep <- median(stepsum)
+```
+
+We can see that the mean is 9354.23 and the median is 10395. 
 
 
 ## What is the average daily activity pattern?
 Next we will look at the daily activity pattern. Specifically, we will look at 
 which interval across all the days have the most activity. We start off by 
 summing the steps for each interval and then print them to a graph.
-```{r}
+
+```r
 intervalmean <- tapply(df$steps, df$interval, mean, na.rm=TRUE)
                           
 ggplot(df, aes(x=as.POSIXct(levels(df$interval), format="%H:%M"), 
@@ -96,11 +108,16 @@ ggplot(df, aes(x=as.POSIXct(levels(df$interval), format="%H:%M"),
                                 breaks=date_breaks("2 hour")) +
         xlab("Time of the day") + 
         ylab("Steps")
+```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+
+```r
 maxstep <- intervalmean[which.max(as.numeric(intervalmean))]
 intervalmaxstep <- names(intervalmean[which.max(as.numeric(intervalmean))])
 ```
 Furthermore, we see that the average maximum amount of steps is at
-`r intervalmaxstep` with `r round(maxstep, 2)` steps. 
+08:35 with 206.17 steps. 
 
 
 
@@ -112,16 +129,17 @@ some appropriate value. We then make another histogram and compare it to the old
 one to see if we find any difference. Lastly, we calculate the mean and the 
 median.
 
-```{r}
-numberna <- sum(is.na(df$steps))
 
+```r
+numberna <- sum(is.na(df$steps))
 ```
-We see there are exactly `r numberna` of rows with NA's.   
+We see there are exactly 2304 of rows with NA's.   
 Now, our strategy for filling in these NA's are taking the average of the 
 interval to which they belong. We have already computed the interval mean 
 previously, and we will use these values.
 
-```{r}
+
+```r
 dfNA <- df
 stepsna <- is.na(dfNA$steps)
 
@@ -138,10 +156,13 @@ hist(stepsum, breaks=20, main = "Number of steps pr. day with NA", xlab="Steps",
 stepsumNoNA <- as.numeric(tapply(dfNA$step, df$date, sum))
 hist(stepsumNoNA, breaks=20, main = "Number of steps pr. day without NA", xlab="Steps", 
      ylab="Count", col="green")
+```
 
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+
+```r
 stepmeanNA <- mean(stepsumNoNA)
 stepmedianNA <- median(stepsumNoNA)
-
 ```
 We see that there are some difference between the plots, though not a lot. We 
 see that by far the most common is around 11.000 steps, and that the amount
@@ -149,8 +170,8 @@ of days with no steps has been drastically reduced. THis is probably due to the
 fact that quite a few of the days that were counted as 0 had a lot of NA's,
 which has now been removed.
 
-We see that the original mean was `r meanstep` and median `r medianstep`,
-whereas the new mean is `r stepmeanNA` and new median is `r stepmedianNA`.
+We see that the original mean was 9354.23 and median 10395,
+whereas the new mean is 10766.1887 and new median is 10766.1887.
 We see that the two mean and median are practially identical, which would 
 suggest a normal distribution. This could very well be.
 
@@ -158,7 +179,8 @@ suggest a normal distribution. This could very well be.
 In this section we will investigate into whether there is a difference between
 weekend and weekdays. We will do this by using a panel time series plot.
 
-```{r}
+
+```r
 posixdate <- as.POSIXlt(dfNA$date)
 weekday <- posixdate$wday
 
@@ -196,10 +218,9 @@ ggplot(dfcomplete, aes(x=as.POSIXct(interval, format="%H:%M"),
                                 breaks=date_breaks("2 hour")) +
         xlab("Time of the day") + 
         ylab("Steps") + facet_grid(weekday ~ .)
-
-
-
 ```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
 
 As we can see from the above, there is somewhat different, but we still see the
 heaviest activity around 08:00 to 10:00 in the morning. 
